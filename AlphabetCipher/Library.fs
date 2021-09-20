@@ -31,6 +31,14 @@ module Key =
         Seq.find isStretchedKey patterns
 
 module Cipher =
+    let rec repeat f i x = if i = 0 then x else f (repeat f (i - 1) x)
+
+    let alphabetList = seq { for _ in 0..25 -> Alphabet.alphabet }
+                        |> Seq.mapi (repeat List.headToTail)
+                        |> Seq.toList
+
+    let make = Array2D.init 26 26 (fun x y -> List.item x alphabetList |> List.item y)
+
     type Rotation = 
         | Line
         | Column
@@ -70,13 +78,7 @@ module Cipher =
 module Ciphers =
     open Cipher
 
-    let rec repeat f i x = if i = 0 then x else f (repeat f (i - 1) x)
-
-    let alphabetList = seq { for _ in 0..25 -> Alphabet.alphabet }
-                        |> Seq.mapi (repeat List.headToTail)
-                        |> Seq.toList
-
-    let encoding = Array2D.init 26 26 (fun x y -> List.item x alphabetList |> List.item y)
+    let encoding = make
     let decoding = rotate Line encoding
     let deciphering = rotate Column encoding
 
